@@ -1,0 +1,26 @@
+### 1. CREATE NOTICE (POST)
+POST http://localhost:8081/notices
+Content-Type: application/json
+
+{
+  "title": "Exam Notice",
+  "description": "End semester exam tomorrow"
+}
+
+### 2. READ ALL NOTICES (GET)
+GET http://localhost:8081/notices
+
+### 3. UPDATE NOTICE (PUT)
+PUT http://localhost:8081/notices/2
+Content-Type: application/json
+
+{
+  "title": "Updated Exam Notice",
+  "description": "Exam postponed to next week"
+}
+
+### 4. DELETE NOTICE (DELETE)
+DELETE http://localhost:8081/notices/4
+
+### 5. READ AGAIN (VERIFY DELETE)
+GET http://localhost:8081/notices

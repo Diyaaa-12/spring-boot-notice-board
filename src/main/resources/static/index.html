@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notice Board</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 520px;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        h3 {
+            margin-top: 20px;
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 9px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .add-btn {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .add-btn:hover {
+            background: #5a6fdc;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        li {
+            background: #f7f8ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        li b {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .desc {
+            color: #555;
+            font-size: 14px;
+            margin: 6px 0 10px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn {
+            background: #f4b400;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #cf3c2e;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📌 Notice Board</h2>
+    <div class="subtitle">Create, update and manage notices easily</div>
+
+    <h3>Add / Edit Notice</h3>
+
+    <input type="hidden" id="id">
+    <input id="title" placeholder="Notice Title">
+    <input id="description" placeholder="Notice Description">
+
+    <button class="btn add-btn" onclick="saveNotice()">Save Notice</button>
+
+    <h3>All Notices</h3>
+    <ul id="noticeList"></ul>
+
+    <div class="footer">Spring Boot • HTML • JavaScript</div>
+
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8081/notices";
+
+    function loadNotices() {
+        fetch(BASE_URL)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("noticeList");
+                list.innerHTML = "";
+
+                data.forEach(n => {
+                    list.innerHTML += `
+                        <li>
+                            <b>${n.title}</b>
+                            <div class="desc">${n.description}</div>
+
+                            <div class="actions">
+                                <button class="btn edit-btn"
+                                    onclick="editNotice(${n.id}, '${n.title}', '${n.description}')">
+                                    Edit
+                                </button>
+
+                                <button class="btn delete-btn"
+                                    onclick="deleteNotice(${n.id})">
+                                    Delete
+                                </button>
+                            </div>
+                        </li>
+                    `;
+                });
+            });
+    }
+
+    function saveNotice() {
+        const id = document.getElementById("id").value;
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+
+        const notice = { title, description };
+
+        if (id === "") {
+            fetch(BASE_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(notice)
+            }).then(loadNotices);
+        } else {
+            fetch(`${BASE_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(notice)
+            }).then(loadNotices);
+        }
+
+        clearForm();
+    }
+
+    function editNotice(id, title, description) {
+        document.getElementById("id").value = id;
+        document.getElementById("title").value = title;
+        document.getElementById("description").value = description;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteNotice(id) {
+        fetch(`${BASE_URL}/${id}`, { method: "DELETE" })
+            .then(loadNotices);
+    }
+
+    function clearForm() {
+        document.getElementById("id").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+    }
+
+    loadNotices();
+</script>
+
+</body>
+</html>
